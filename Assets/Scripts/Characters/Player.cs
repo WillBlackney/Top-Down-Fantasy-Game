@@ -67,6 +67,13 @@ public class Player : LivingEntity
         ShootFireBall();
         LookAtMouse();
     }
+    public void ResetToStartSettings()
+    {
+        gameObject.SetActive(true);
+        myCharacterAnimator.PlayIdleAnimation();
+        transform.position = new Vector3(0, 0, 0);
+        ModifyHealth(maxHealth);
+    }
     #endregion
 
     // Core Logic

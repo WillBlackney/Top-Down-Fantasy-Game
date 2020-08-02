@@ -9,11 +9,17 @@ public class CharacterAnimator : MonoBehaviour
 
     [Header("Properties")]
     public bool attackAnimActive;
+    public bool shootMomentReached;
 
     public void PlayMeleeAttackAnimation()
     {
         SetAttackAnimState();
         animator.SetTrigger("Melee Attack");
+    }
+    public void PlayRangedAttackAnimation()
+    {
+        SetAttackAnimState();
+        animator.SetTrigger("Ranged Attack");
     }
     public void PlayWalkAnimation()
     {
@@ -29,7 +35,12 @@ public class CharacterAnimator : MonoBehaviour
             animator.SetTrigger("Idle");
         }
     }
-    
+    public void PlayDeathAnimation()
+    {
+        DisableAttackAnimState();
+        animator.SetTrigger("Die");
+    }
+
     public void SetAttackAnimState()
     {
         attackAnimActive = true;
@@ -37,5 +48,9 @@ public class CharacterAnimator : MonoBehaviour
     public void DisableAttackAnimState()
     {
         attackAnimActive = false;
+    }
+    public void ShootMomentReached()
+    {
+        shootMomentReached = true;
     }
 }

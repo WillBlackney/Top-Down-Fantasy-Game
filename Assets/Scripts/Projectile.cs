@@ -24,6 +24,16 @@ public class Projectile : MonoBehaviour
         FaceDestination();
         readyToMove = true;
     }
+    public void InitializeSetup(Enemy _enemyOwner, Vector3 _startPos, Vector3 _destinationPos, int _damageAmount)
+    {
+        damageAmount = _damageAmount;
+        transform.position = _startPos;
+        destinationPos = new Vector3(_destinationPos.x, _destinationPos.y, 1);
+        direction = (destinationPos - _startPos).normalized;
+        enemyOwner = _enemyOwner;
+        FaceDestination();
+        readyToMove = true;
+    }
 
     void Update()
     {

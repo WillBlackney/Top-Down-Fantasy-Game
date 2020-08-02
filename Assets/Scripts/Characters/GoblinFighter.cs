@@ -8,6 +8,11 @@ public class GoblinFighter : Enemy
     {
         base.RunMyRoutines();
 
+        if (inDeathProcess || currentTarget == null || currentTarget.inDeathProcess)
+        {
+            return;
+        }
+
         bool inRange = CombatLogic.Instance.IsTargetInRange(attackRange, this, currentTarget);
 
         if (!inRange)

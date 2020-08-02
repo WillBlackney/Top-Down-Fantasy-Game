@@ -7,13 +7,15 @@ public class LivingEntity : MonoBehaviour
 {
     [Header("Living Entity Components")]
     public CharacterAnimator myCharacterAnimator;
-    public GameObject modelParent;
-    public Slider healthBar;
+    [SerializeField] private GameObject modelParent;
+    [SerializeField] private Slider healthBar;
+    [SerializeField] private BoxCollider2D myBoxCollider;
 
     [Header("Living Entity Properties")]
     public float moveSpeed;
     public int maxHealth;
     public int currentHealth;
+    public bool inDeathProcess;
 
     public virtual void InitializeSetup()
     {
@@ -33,6 +35,11 @@ public class LivingEntity : MonoBehaviour
 
         UpdateMyHealthGUI();
 
+    }
+    public virtual void SetDeathProcess()
+    {
+        inDeathProcess = true;
+        myBoxCollider.enabled = false;
     }
 
     // Animations + Model

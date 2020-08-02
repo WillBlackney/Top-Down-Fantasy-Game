@@ -147,7 +147,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 40
   m_TargetDisplay: 0
 --- !u!114 &3905172239279040724
 MonoBehaviour:
@@ -488,11 +488,11 @@ MonoBehaviour:
   myCharacterAnimator: {fileID: 4880447869136670574}
   modelParent: {fileID: 5292775087287860729}
   healthBar: {fileID: 1734371309990112474}
-  moveSpeed: 2
+  myBoxCollider: {fileID: 3812143337595504138}
+  moveSpeed: 1.5
   maxHealth: 20
   currentHealth: 0
-  flipParent: {fileID: 5292775087287860729}
-  mySpriteRenderer: {fileID: 0}
+  inDeathProcess: 0
   currentTarget: {fileID: 0}
   scoreGainOnKill: 1
   attackDamage: 5

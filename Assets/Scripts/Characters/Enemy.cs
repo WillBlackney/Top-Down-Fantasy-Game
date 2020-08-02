@@ -6,10 +6,6 @@ public class Enemy : LivingEntity
 {
     // Properties + Components
     #region
-    [Header("Enemy Component References")]
-    public GameObject flipParent;
-    public SpriteRenderer mySpriteRenderer;
-
     [Header("Enemy Properties")]
     public Player currentTarget;
     public int scoreGainOnKill;
@@ -36,6 +32,11 @@ public class Enemy : LivingEntity
     #region
     protected virtual void RunMyRoutines()
     {
+        if (inDeathProcess || currentTarget == null || currentTarget.inDeathProcess)
+        {
+            return;
+        }
+
         ReduceCooldownInUpdate();
         FaceDirectionOfTravel(transform.position.x, currentTarget.transform.position.x);
     }

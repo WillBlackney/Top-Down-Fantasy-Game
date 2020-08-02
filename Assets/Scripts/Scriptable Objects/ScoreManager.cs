@@ -9,14 +9,33 @@ public class ScoreManager : Singleton<ScoreManager>
     public TextMeshProUGUI currentScoreText;
 
     [Header("Properties")]
-    public int currentScore;
+    private int currentScore;
+    // TO DO: if there is time, save high score to player prefs for persistency between sessions
+    private int highScore = 0;
+
+    public int CurrentScore()
+    {
+        return currentScore;
+    }
     public void ModifyScore(int scoreGainedOrLost)
     {
         currentScore += scoreGainedOrLost;
         UpdateScoreText();
     }
+    public void SetNewHighScore(int newHighScore)
+    {
+        highScore = newHighScore;
+    }
     private void UpdateScoreText()
     {
         currentScoreText.text = currentScore.ToString();
+    }
+    public void ResetToStartSettings()
+    {
+        ModifyScore(-currentScore);
+    }
+    public bool DidPlayerAchieveNewHighScore()
+    {
+        return currentScore > highScore;
     }
 }
