@@ -1,9 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GoblinFighter : Enemy
 {
+    // Routines
+    #region
     protected override void RunMyRoutines()
     {
         base.RunMyRoutines();
@@ -24,13 +24,12 @@ public class GoblinFighter : Enemy
             AttackPlayer();
         }
     }
-
     void AttackPlayer()
     {
         myCharacterAnimator.PlayMeleeAttackAnimation();
         CombatLogic.Instance.HandleDamage(currentTarget, attackDamage);
         SetAttackOnCooldown();
     }
-    
+    #endregion
 
 }

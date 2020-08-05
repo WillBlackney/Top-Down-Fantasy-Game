@@ -2,7 +2,7 @@
 
 public abstract class Singleton<T> : MonoBehaviour where T : Singleton<T>
 {
-    // Classes that inherit from this will implement a 'Lazy Singleton Pattern'
+    // Any class that inherits from this will become a singleton
 
     public static T Instance;
 

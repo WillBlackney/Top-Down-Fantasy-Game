@@ -6,11 +6,19 @@ public class CombatLogic : Singleton<CombatLogic>
 {
     public void HandleDamage(LivingEntity entityDamaged, int damageValue)
     {
-        entityDamaged.ModifyHealth(-damageValue);
-        if(entityDamaged.currentHealth <= 0)
+        Player player = entityDamaged.GetComponent<Player>();
+        if(player && player.manaBarrierIsActive == true)
         {
-            HandleDeath(entityDamaged);
+            // do mana barrier reflection VFX stuff here
         }
+        else
+        {
+            entityDamaged.ModifyHealth(-damageValue);
+            if (entityDamaged.currentHealth <= 0)
+            {
+                HandleDeath(entityDamaged);
+            }
+        }   
 
     }
     public void HandleDeath(LivingEntity entityKilled)
@@ -49,6 +57,9 @@ public class CombatLogic : Singleton<CombatLogic>
         }      
         else if (entityKilled is Player)
         {
+            // Stop spawning enemies
+            EnemySpawnManager.Instance.CancelSpawning();
+
             // Get enemy script
             Player player = entityKilled.GetComponent<Player>();
 
@@ -60,7 +71,7 @@ public class CombatLogic : Singleton<CombatLogic>
             yield return new WaitForSeconds(1);
 
             // Hide player GO
-            player.gameObject.SetActive(false);
+            player.myCharacterAnimator.HideModel();
 
             // Trigger end game defeat event
             EventManager.Instance.StartNewGameOverDefeatEvent();

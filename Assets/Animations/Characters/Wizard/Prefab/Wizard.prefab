@@ -759,7 +759,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 95091363009828750}
+  modelParent: {fileID: 1884578989754628}
   attackAnimActive: 0
+  shootMomentReached: 0
 --- !u!1 &1902772317721620
 GameObject:
   m_ObjectHideFlags: 0

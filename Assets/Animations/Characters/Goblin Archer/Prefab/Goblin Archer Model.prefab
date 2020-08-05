@@ -1182,6 +1182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 95199145907096836}
+  modelParent: {fileID: 1912697344462830}
   attackAnimActive: 0
   shootMomentReached: 0
 --- !u!1 &1977700297401860

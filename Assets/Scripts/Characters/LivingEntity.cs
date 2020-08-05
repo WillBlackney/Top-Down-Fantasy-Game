@@ -1,46 +1,30 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class LivingEntity : MonoBehaviour
 {
+    // Properties + Component References
+    #region
     [Header("Living Entity Components")]
     public CharacterAnimator myCharacterAnimator;
     [SerializeField] private GameObject modelParent;
     [SerializeField] private Slider healthBar;
-    [SerializeField] private BoxCollider2D myBoxCollider;
+    [SerializeField] protected BoxCollider2D myBoxCollider;
 
     [Header("Living Entity Properties")]
     public float moveSpeed;
     public int maxHealth;
     public int currentHealth;
     public bool inDeathProcess;
+    #endregion
 
+    // Setup
+    #region
     public virtual void InitializeSetup()
     {
         ModifyHealth(maxHealth);
-    }    
-    public virtual void ModifyHealth(int healthGainedOrLost)
-    {
-        currentHealth += healthGainedOrLost;
-        if(currentHealth > maxHealth)
-        {
-            currentHealth = maxHealth;
-        }
-        else if(currentHealth < 0)
-        {
-            currentHealth = 0;
-        }
-
-        UpdateMyHealthGUI();
-
     }
-    public virtual void SetDeathProcess()
-    {
-        inDeathProcess = true;
-        myBoxCollider.enabled = false;
-    }
+    #endregion    
 
     // Animations + Model
     #region  
@@ -77,6 +61,30 @@ public class LivingEntity : MonoBehaviour
         float currentMaxHealthFloat = maxHealth;
 
         healthBar.value = currentHealthFloat / currentMaxHealthFloat;
+    }
+    #endregion
+
+    // Modify Health + Living State
+    #region
+    public virtual void ModifyHealth(int healthGainedOrLost)
+    {
+        currentHealth += healthGainedOrLost;
+        if (currentHealth > maxHealth)
+        {
+            currentHealth = maxHealth;
+        }
+        else if (currentHealth < 0)
+        {
+            currentHealth = 0;
+        }
+
+        UpdateMyHealthGUI();
+
+    }
+    public virtual void SetDeathProcess()
+    {
+        inDeathProcess = true;
+        myBoxCollider.enabled = false;
     }
     #endregion
 }

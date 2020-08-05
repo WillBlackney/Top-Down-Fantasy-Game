@@ -1,10 +1,16 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GoblinArcher : Enemy
 {
+    // Properties + Component References
+    #region
+    [Header("Goblin Archer Properties + Component References")]
     private bool alreadyShooting;
+    #endregion
+
+    // Routines
+    #region
     protected override void RunMyRoutines()
     {
         base.RunMyRoutines();
@@ -16,7 +22,12 @@ public class GoblinArcher : Enemy
 
         bool inRange = CombatLogic.Instance.IsTargetInRange(attackRange, this, currentTarget);
 
-        if (!inRange)
+        // Prevent hidden shooting from the trees, move in bounds THEN start shooting
+        if (!WorldManager.Instance.IsLocationInBounds(transform.position))
+        {
+            MoveTowardsWorldCentre();
+        }
+        else if (!inRange)
         {
             MoveTowardsPlayer();
         }
@@ -30,7 +41,6 @@ public class GoblinArcher : Enemy
         alreadyShooting = true;
         StartCoroutine(ShootPlayerCoroutine());
     }
-
     IEnumerator ShootPlayerCoroutine()
     {
         // Trigger attack anim
@@ -46,4 +56,5 @@ public class GoblinArcher : Enemy
         SetAttackOnCooldown();
         alreadyShooting = false;
     }
+    #endregion
 }

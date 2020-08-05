@@ -1,16 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CharacterAnimator : MonoBehaviour
 {
+    // Properties + Component References
+    #region
     [Header("Component References")]
     public Animator animator;
+    public GameObject modelParent;
 
     [Header("Properties")]
     public bool attackAnimActive;
     public bool shootMomentReached;
+    #endregion
 
+    // Trigger animations
+    #region
     public void PlayMeleeAttackAnimation()
     {
         SetAttackAnimState();
@@ -40,7 +44,18 @@ public class CharacterAnimator : MonoBehaviour
         DisableAttackAnimState();
         animator.SetTrigger("Die");
     }
+    #endregion
 
+    // Misc Logic
+    #region
+    public void ShowModel()
+    {
+        modelParent.SetActive(true);
+    }
+    public void HideModel()
+    {
+        modelParent.SetActive(false);
+    }
     public void SetAttackAnimState()
     {
         attackAnimActive = true;
@@ -53,4 +68,5 @@ public class CharacterAnimator : MonoBehaviour
     {
         shootMomentReached = true;
     }
+    #endregion
 }

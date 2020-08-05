@@ -14,6 +14,7 @@ public class EnemySpawnManager : Singleton<EnemySpawnManager>
     public List<EnemyWaveData> allWaveData;
     public List<SpawnEvent> currentWaveSpawnEvents;
     public List<Enemy> allEnemies;
+    [SerializeField] Transform enemyParent;
 
     [Header("Spawn Location Properties")]
     public Transform[] spawnLocations;
@@ -89,6 +90,10 @@ public class EnemySpawnManager : Singleton<EnemySpawnManager>
 
         return locationReturned;
     }
+    public Transform EnemyParent()
+    {
+        return enemyParent;
+    }
     #endregion
 
     // Spawn Enemy Waves Logic
@@ -97,6 +102,7 @@ public class EnemySpawnManager : Singleton<EnemySpawnManager>
     {
         Vector3 spawnLocation = location;
         Enemy enemy = Instantiate(enemyPrefab, spawnLocation, Quaternion.identity).GetComponent<Enemy>();
+        enemy.transform.SetParent(EnemyParent());
         enemy.InitializeSetup();
         AddEnemyToAllEnemiesList(enemy);
     }      
@@ -110,19 +116,26 @@ public class EnemySpawnManager : Singleton<EnemySpawnManager>
         currentWaveSpawnEvents.AddRange(wave.spawnEvents);
         activelySpawning = true;
 
-        foreach(SpawnEvent se in currentWaveSpawnEvents)
+        while (activelySpawning)
         {
-            float spawnDelay = Random.Range(se.preSpawnDelayMin, se.preSpawnDelayMax);
-            yield return new WaitForSeconds(spawnDelay);
-            Transform spawnLocation = GetSpawnLocationFromSpawnEvent(se);
-            SpawnEnemy(se.enemyPrefab, spawnLocation.position);
-
-            // is this the last enemy to spawn in the wave?
-            if(currentWaveSpawnEvents.Last() == se)
+            for(int i = 0; i < currentWaveSpawnEvents.Count - 1; i++)
             {
-                activelySpawning = false;
+                SpawnEvent se = currentWaveSpawnEvents[i];
+                float spawnDelay = Random.Range(se.preSpawnDelayMin, se.preSpawnDelayMax);
+                yield return new WaitForSeconds(spawnDelay);
+                Transform spawnLocation = GetSpawnLocationFromSpawnEvent(se);
+                SpawnEnemy(se.enemyPrefab, spawnLocation.position);
+
+                // is this the last enemy to spawn in the wave?
+                if (currentWaveSpawnEvents.Count > 0 &&
+                    currentWaveSpawnEvents.Last() == se)
+                {
+                    activelySpawning = false;
+                }
             }
+            activelySpawning = false;
         }
+       
     }
     #endregion
 
@@ -155,21 +168,45 @@ public class EnemySpawnManager : Singleton<EnemySpawnManager>
             // Reverse for loop to safely iterate over all enemies while destroying them
             for (int i = allEnemies.Count - 1; i >= 0; i--)
             {
-                Destroy(allEnemies[i]);
+                Destroy(allEnemies[i].gameObject);
             }
         }
         else if(allEnemies.Count == 1)
         {
-            Destroy(allEnemies[0]);
+            Destroy(allEnemies[0].gameObject);
         }      
 
         // Flush list
         allEnemies.Clear();
     }
+    public void SearchAndDestroyAllEnemies()
+    {
+        Enemy[] enemies = FindObjectsOfType<Enemy>();
+
+        if (allEnemies.Count > 1)
+        {
+            // Reverse for loop to safely iterate over all enemies while destroying them
+            for (int i = allEnemies.Count - 1; i >= 0; i--)
+            {
+
+            }
+        }
+        else if (allEnemies.Count == 1)
+        {
+            Destroy(allEnemies[0].gameObject);
+        }
+
+    }
     public void ResetToStartSettings()
     {
-        DestroyAllEnemies();
+        CancelSpawning();
+        currentWaveSpawnEvents.Clear();
+        DestroyAllEnemies();     
         SetCurrentStage(1);
+    }
+    public void CancelSpawning()
+    {
+        activelySpawning = false;
     }
     #endregion
 

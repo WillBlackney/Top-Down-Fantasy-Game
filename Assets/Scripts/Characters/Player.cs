@@ -1,12 +1,11 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
 public class Player : LivingEntity
 {
-    // Components + Properties
+    // Components + Variables
     #region
     [Header("Player GUI Component References")]
     [SerializeField] private TextMeshProUGUI currentHealthText;
@@ -21,19 +20,24 @@ public class Player : LivingEntity
     private int currentEnergy;
     private bool passivelyGainEnergy;
 
-    [Header("Player Move Boundary Properties")]
-    [SerializeField] private float padding;
-    private float xMin;
-    private float xMax;
-    private float yMin;
-    private float yMax;
+    [Header("Player Misc Properties")]
+    private bool controlsEnabled;
 
     [Header("Fire Ball Properties")]
     [SerializeField] private int fireBallDamageAmount = 10;
     [SerializeField] private int fireBallEnergyCost = 10;
     [SerializeField] private float fireBallBaseCooldown = 0;
-    private float fireballCurrentCooldown; 
+    private float fireballCurrentCooldown;
 
+    [Header("Blink Properties")]
+    [SerializeField] private int blinkEnergyCost = 10;
+    [SerializeField] private float blinkBaseCooldown = 0;
+    private float blinkCurrentCooldown;
+
+    [Header("Mana Barrier Properties")]
+    [SerializeField] private int mbEnergyCostPerTick;
+    [HideInInspector] public bool manaBarrierIsActive;
+    [SerializeField] private GameObject manaBarrierVisualParent;
     #endregion
 
     // Initialization + Setup + Update
@@ -41,38 +45,41 @@ public class Player : LivingEntity
     public override void InitializeSetup()
     {
         base.InitializeSetup();
-        SetUpMoveBoundaries();
 
         // Fill up energy bar, start gain energy over time
         ModifyCurrentEnergy(maxEnergy);
         StartCoroutine(GainEnergyPassively());
+        controlsEnabled = true;
     }
     private void Start()
     {
         InitializeSetup();
-    }
-    private void SetUpMoveBoundaries()
-    {
-        Camera mainCamera = Camera.main;
-
-        xMin = mainCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x + padding;
-        xMax = mainCamera.ViewportToWorldPoint(new Vector3(1, 0, 0)).x - padding;
-
-        yMin = mainCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).y + padding;
-        yMax = mainCamera.ViewportToWorldPoint(new Vector3(0, 1, 0)).y - padding;
-    }
+        DisableControls();
+    }  
     private void Update()
     {
-        Move();
-        ShootFireBall();
-        LookAtMouse();
+        if (controlsEnabled)
+        {
+            Move();
+            ShootFireBall();
+            LookAtMouse();
+            PerformBlink();
+            AwaitManaBarrierInput();
+        }        
     }
     public void ResetToStartSettings()
     {
-        gameObject.SetActive(true);
+        myCharacterAnimator.ShowModel();
         myCharacterAnimator.PlayIdleAnimation();
         transform.position = new Vector3(0, 0, 0);
         ModifyHealth(maxHealth);
+        inDeathProcess = false;
+        myBoxCollider.enabled = true;
+        controlsEnabled = true;
+    }
+    public void DisableControls()
+    {
+        controlsEnabled = false;
     }
     #endregion
 
@@ -105,8 +112,8 @@ public class Player : LivingEntity
         }
 
         // Clamp position to keep player on screen
-        newX = Mathf.Clamp(newX, xMin, xMax);
-        newY = Mathf.Clamp(newY, yMin, yMax);
+        newX = Mathf.Clamp(newX, WorldManager.Instance.XMin, WorldManager.Instance.XMax);
+        newY = Mathf.Clamp(newY, WorldManager.Instance.YMin, WorldManager.Instance.YMax);
 
         newPos = new Vector2(newX, newY);
 
@@ -143,6 +150,19 @@ public class Player : LivingEntity
             }            
         }
     }
+    private void PerformBlink()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Vector2 mousePos = CameraManager.Instance.mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            if (WorldManager.Instance.IsLocationInBounds(mousePos) &&
+                HasEnoughEnergy(blinkEnergyCost, currentEnergy))
+            {
+                transform.position = mousePos;
+                ModifyCurrentEnergy(-blinkEnergyCost);
+            }
+        }
+    }
     private void LookAtMouse()
     {
         float mouseX = CameraManager.Instance.mainCamera.ScreenToWorldPoint(Input.mousePosition).x;
@@ -162,6 +182,11 @@ public class Player : LivingEntity
             ModifyCurrentEnergy(energyRecovedPerTick);
             yield return new WaitForSeconds(energyRecoveryTickFrequency);
         }
+    }
+    public override void SetDeathProcess()
+    {
+        base.SetDeathProcess();
+        controlsEnabled = false;
     }
 
     #endregion
@@ -205,6 +230,47 @@ public class Player : LivingEntity
     private bool IsAbilityOffCooldown(float currentCooldownTime)
     {
         return currentCooldownTime == 0;
+    }
+    #endregion
+
+    // Mana Barrier Logic
+    #region
+    private void AwaitManaBarrierInput()
+    {
+        if(Input.GetKeyDown(KeyCode.Mouse1) && 
+            currentEnergy > 5 &&
+            manaBarrierIsActive == false)
+        {
+            ActivateManaBarrier();
+        }
+        else if (Input.GetKeyUp(KeyCode.Mouse1))
+        {
+            CancelManaBarrier();
+        }
+    }
+    private void ActivateManaBarrier()
+    {
+        manaBarrierIsActive = true;
+        SetManaBarrierEffectViewState(true);
+        StartCoroutine(ChannelManaBarrier());
+    }
+    private IEnumerator ChannelManaBarrier()
+    {
+        while(manaBarrierIsActive && currentEnergy > 5)
+        {
+            ModifyCurrentEnergy(-mbEnergyCostPerTick);
+            yield return new WaitForSeconds(0.1f);
+        }
+        CancelManaBarrier();
+    }
+    private void CancelManaBarrier()
+    {
+        manaBarrierIsActive = false;
+        SetManaBarrierEffectViewState(false);
+    }
+    private void SetManaBarrierEffectViewState(bool onOrOff)
+    {
+        manaBarrierVisualParent.SetActive(onOrOff);
     }
     #endregion
 }

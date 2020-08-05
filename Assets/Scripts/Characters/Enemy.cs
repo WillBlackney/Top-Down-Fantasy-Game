@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Enemy : LivingEntity
 {
@@ -32,6 +30,9 @@ public class Enemy : LivingEntity
     #region
     protected virtual void RunMyRoutines()
     {
+        // Main function for dictating enemy behaviour
+        // Should be overriden in every enemy sub script, but
+        // also include the base RunMyRoutines logic
         if (inDeathProcess || currentTarget == null || currentTarget.inDeathProcess)
         {
             return;
@@ -42,6 +43,8 @@ public class Enemy : LivingEntity
     }
     public void AutoFindAndSetPlayerTarget()
     {
+        // TO DO in future: player should be stored in a static variable, (unless we want mutliple players?)
+        // find object of type will degrade performanc if we spawn too many enemies
         currentTarget = FindObjectOfType<Player>();
     }
     protected virtual void MoveTowardsPlayer()
@@ -49,6 +52,17 @@ public class Enemy : LivingEntity
         if(transform.position != currentTarget.transform.position)
         {
             Vector2 newPos = Vector2.MoveTowards(transform.position, currentTarget.transform.position, Time.deltaTime * moveSpeed);
+            transform.position = newPos;
+        }
+    }
+    protected virtual void MoveTowardsWorldCentre()
+    {
+        // used to make enemies move in bounds BEFORE
+        // starting their normal routines.
+        // this prevents enemies from attacking from the woods and hidden areas
+        if (transform.position != WorldManager.Instance.GetWorldCentre())
+        {
+            Vector2 newPos = Vector2.MoveTowards(transform.position, WorldManager.Instance.GetWorldCentre(), Time.deltaTime * moveSpeed);
             transform.position = newPos;
         }
     }

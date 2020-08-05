@@ -6,6 +6,11 @@ using UnityEngine.UI;
 
 public class UIManager : Singleton<UIManager>
 {
+    // Properties + Component References
+    #region
+    [Header("Player GUI View Components")]
+    public GameObject playerGUIVisualParent;
+
     [Header("Wave Compete View Components")]
     public GameObject waveCompleteParent;
     public CanvasGroup waveCompleteCG;
@@ -19,7 +24,6 @@ public class UIManager : Singleton<UIManager>
     public float countDownFadeSpeed;
     public float scalingSpeed;
 
-
     [Header("Game Over Screen Components")]
     public GameObject gameOverScreenVisualParent;
     public CanvasGroup gameOverScreenCG;
@@ -27,6 +31,40 @@ public class UIManager : Singleton<UIManager>
     public float gameOverScreenFadeInSpeed;
     public Button gameOverScreenMainMenuButton;
 
+    [Header("Main Menu Screen Components")]
+    public GameObject mainMenuVisualParent;
+    public CanvasGroup mainMenuCG;
+    public Button newGameButton;
+    public Button instructionsButton;
+    public Button quitButton;
+    #endregion
+
+    // On Button Press Events
+    #region
+    public void OnNewGameButtonPressed()
+    {
+        SetButtonsState(false);
+        EventManager.Instance.StartMainMenuToGameTransistionEvent();
+    }
+    public void OnInstructionsButtonPressed()
+    {
+
+    }
+    public void OnQuitButtonPressed()
+    {
+        Application.Quit();
+    }
+    public void OnBackToMainMenuButtonClicked()
+    {
+        // prevent user clicking multiple times
+        gameOverScreenMainMenuButton.interactable = false;
+
+        EventManager.Instance.StartGameToMainMenuTransistionEvent();
+    }
+    #endregion
+
+    // Wave Message Logic
+    #region
     public Action ShowNewWaveCompleteMessage()
     {
         Action action = new Action();
@@ -124,6 +162,10 @@ public class UIManager : Singleton<UIManager>
 
         action.MarkAsComplete();
     }
+    #endregion
+
+    // Game Over Screen Logic
+    #region
     public Action FadeInGameOverScreen(string bannerText)
     {
         Action action = new Action();
@@ -145,15 +187,35 @@ public class UIManager : Singleton<UIManager>
 
         yield return null;
     }
-    public void OnBackToMainMenuButtonClicked()
+    #endregion
+
+    // Main Menu Logic
+    #region
+    public void DisableMainMenuView()
     {
-        // prevent user clicking multiple times
-        gameOverScreenMainMenuButton.interactable = false;
-
-        // Start reset game event
-        EventManager.Instance.StartResetGameSequence();       
-
+        mainMenuVisualParent.SetActive(false);
+        SetButtonsState(false);
     }
+    public void EnableMainMenuView()
+    {
+        mainMenuVisualParent.SetActive(true);
+        SetButtonsState(true);
+    }
+    public void SetButtonsState(bool onOrOff)
+    {
+        newGameButton.interactable = onOrOff;
+        instructionsButton.interactable = onOrOff;
+        quitButton.interactable = onOrOff;
+    }
+    #endregion
+
+    // Player GUI Logic
+    #region
+    public void SetPlayerGUIViewState(bool onOrOff)
+    {
+        playerGUIVisualParent.SetActive(onOrOff);
+    }
+    #endregion
     public void ResetToStartSettings()
     {
         gameOverScreenVisualParent.SetActive(false);
